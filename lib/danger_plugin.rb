@@ -48,6 +48,7 @@ module Danger
 
     def rubocop(files_to_lint, force_exclusion)
       base_command = 'rubocop -f json'
+      base_command << ' --parallel'
       base_command << ' --force-exclusion' if force_exclusion
 
       rubocop_output = `#{'bundle exec ' if File.exist?('Gemfile')}#{base_command} #{files_to_lint}`
