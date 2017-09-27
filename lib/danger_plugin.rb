@@ -29,11 +29,12 @@ module Danger
     def lint(config = nil)
       config = config.is_a?(Hash) ? config : { files: config }
       files = config[:files]
+      config_file = config[:config_file] || '.rubocop.yml'
       force_exclusion = config[:force_exclusion] || false
       inline_comment = config[:inline_comment] || false
 
       files_to_lint = fetch_files_to_lint(files)
-      files_to_report = rubocop(files_to_lint, force_exclusion)
+      files_to_report = rubocop(config_file, files_to_lint, force_exclusion)
 
       return if files_to_report.empty?
 
@@ -46,8 +47,9 @@ module Danger
 
     private
 
-    def rubocop(files_to_lint, force_exclusion)
+    def rubocop(config_file, files_to_lint, force_exclusion)
       base_command = 'rubocop -f json'
+      base_command << " --config \"#{config_file}\"" # TODO: shell escape
       base_command << ' --force-exclusion' if force_exclusion
 
       rubocop_output = `#{'bundle exec ' if File.exist?('Gemfile')}#{base_command} #{files_to_lint}`
